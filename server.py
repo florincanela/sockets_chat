@@ -6,18 +6,19 @@ import select
 
 
 def clientthread(client, address):
-
-	client.send("Welcome to this chatroom!")
+	message = "Welcome to this chatroom!"	
+	client.send(message.encode('utf-8'))
 
 	while True:
-		message = client.recv(2048)
 		try:
+			message = client.recv(2048)
 			if message:
+				message = message.decode("utf-8")
 				print(f"[{address[0]}]: {message}")
 
 				message_to_send = f"[{address[0]}]: {message}"
 
-				broadcast(message_to_send, client)
+				broadcast(message_to_send.encode('utf-8'), client)
 			else:
 				remove(client)
 		except:
@@ -25,9 +26,9 @@ def clientthread(client, address):
 
 
 
-def broadcast(message, client):
+def broadcast(message, connection):
 	for client in list_of_clients:
-		if client != client:
+		if client != connection:
 			try:
 				client.send(message)
 
@@ -78,10 +79,10 @@ if __name__ == '__main__':
 
 		client, address = server.accept()
 		list_of_clients.append(client)
-		print(address[0] + " connected")
+		print(f"[+]{address[0]} Connected.")
 
 		thread = threading.Thread(target=clientthread, args=(client, address))
-
+		thread.start()
 
 	client.close()
 	server.close()

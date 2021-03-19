@@ -14,15 +14,18 @@ if len(sys.argv) != 3:
  	
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-IP_address = arg[1]
-PORT = int(sys.argv[2])
-
-
-
-server.connect((IP_address, PORT))
-
+IP_address = sys.argv[1]
+PORT = int(sys.argv[2])	
 
 print(f"[*]Connecting to {IP_address}:{PORT}...")
+
+try:	
+	server.connect((IP_address, PORT))
+except:
+	print(f"[!]Failed to connect to {IP_address}:{PORT}.")
+	exit()
+
+print(f"[+]Connected to {IP_address}:{PORT}.")
 
 while True:
 
@@ -33,12 +36,13 @@ while True:
 	for sock in read_socket:
 		if sock == server:
 			message = sock.recv(2048)
-			print(message)
-		message = sys.stdin.readLine()
-		server.send(message)
-		sys.stdout.write("[You]:")
-		sys.stdout.write(message)
-		sys.stdout.flush()
+			print(message.decode("utf-8"))
+		else:
+			message = sys.stdin.readline()
+			server.send(message.encode('utf-8'))
+			sys.stdout.write("[You]:")
+			sys.stdout.write(message)
+			sys.stdout.flush()
 
 server.close()
 
